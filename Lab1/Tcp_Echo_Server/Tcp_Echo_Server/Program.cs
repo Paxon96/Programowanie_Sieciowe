@@ -9,7 +9,6 @@ namespace Tcp_Echo_Server {
         
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
             byte[] bytes = new Byte[1024];
             Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Unspecified);
 
