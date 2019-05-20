@@ -32,41 +32,51 @@ namespace Tcp_Echo_Server {
                 }
             } while (incorrectPort);
 
-            try
-            {
+
                 socket.Bind(new IPEndPoint(IPAddress.Parse("0.0.0.0"), port));
                 
                 socket.Listen(5);
                 data = null;
 
                 int counter = 0;
+
+
                 while (true)
                 {
+                try
+                {
                     client = socket.Accept();
+                    
                     counter++;
+
                     Console.WriteLine("Połączenie z {0}", client.RemoteEndPoint.ToString());
-                    Console.WriteLine("Jesteś " + counter + " klientem");
+                    Console.WriteLine("Klient numer " + counter);
 
-
-                    while (IsConnected(client))
+                    while (SocketConnected(client))
                     {
-                        byte[] bufor = new Byte[1024];
-                        int size = client.Receive(bufor);
+                        try
+                        {
+                            byte[] bufor = new Byte[1024];
+                            int size = client.Receive(bufor);
 
-                        Console.WriteLine(Encoding.UTF8.GetString(bufor));
-                        Console.WriteLine(size);
+                            Console.WriteLine(Encoding.UTF8.GetString(bufor));
 
-                        client.Send(bufor, size, SocketFlags.None);
+                            client.Send(bufor, size, SocketFlags.None);
+                        }catch(SocketException ex)
+                        {
+                            throw ex;
+                        }
                     }
-
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Klient się rozłączył" );
+                }
+                finally
+                {
+                    client.Close();
                 }
             }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-            }
-            client.Close();
-            Console.ReadLine();
         }
 
         public static bool IsConnected(Socket socket)
@@ -77,6 +87,15 @@ namespace Tcp_Echo_Server {
             }
             catch (SocketException) { return false; }
         }
+    public static bool SocketConnected(Socket s)
+    {
+        bool part1 = s.Poll(1000, SelectMode.SelectRead);
+        bool part2 = (s.Available == 0);
+        if (part1 && part2)
+            return false;
+        else
+            return true;
+    }
 
     }
 }

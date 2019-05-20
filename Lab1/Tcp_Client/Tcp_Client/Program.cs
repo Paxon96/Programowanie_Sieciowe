@@ -64,6 +64,7 @@ namespace Tcp_Client {
                 Console.WriteLine("Błąd połączena z serwerem na adresie " + ipAdress);
             }
 
+            socket.Close();
             Console.WriteLine("Zamykam");
             Console.ReadLine();
 
